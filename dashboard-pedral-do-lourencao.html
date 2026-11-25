@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><script src="https://myhub.ia.br/canvas-vendor/tailwind.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedral do Lourenção — Dashboard</title>
+<script>
+const IMG_DIR='file:///G:/Meu%20Drive/Projeto%20Monitoramento%20Participativo/FAPESP/Disciplina/Impactos%20ambientais/';
+function fb(i){const f=i.dataset.f,s=+(i.dataset.s||0);i.dataset.s=s+1;if(s===0)i.src=f;else if(s===1)i.src=IMG_DIR+f;else i.onerror=null}
+</script>
+<style>
+:root{--bg:#0a1418;--p:#10202a;--p2:#16303d;--line:#23424f;--tx:#e8f1f2;--mut:#93aab1;--ac:#f0a43a;--te:#2bb3a3;--rd:#e5604d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Segoe UI,system-ui,sans-serif;line-height:1.5}
+a{color:var(--ac)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:50;background:rgba(10,20,24,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0;align-items:center}
+.brand{font-weight:700;margin-right:12px;white-space:nowrap;color:var(--ac)}
+.nav button{background:transparent;border:1px solid transparent;color:var(--mut);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:14px;white-space:nowrap}
+.nav button:hover{color:var(--tx)}
+.nav button.on{background:var(--p2);color:var(--tx);border-color:var(--line)}
+.tab[hidden]{display:none}
+.hero{position:relative;border-radius:18px;overflow:hidden;margin:20px 0;min-height:320px;display:flex;align-items:flex-end}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,24,.1),rgba(10,20,24,.92))}
+.hero .in{position:relative;z-index:1;padding:28px}
+.hero h1{margin:0 0 6px;font-size:clamp(26px,4vw,42px)}
+.hero p{margin:0;max-width:760px;color:#d3e2e5}
+.tag{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:rgba(240,164,58,.15);color:var(--ac);border:1px solid rgba(240,164,58,.4);margin-bottom:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--p);border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi b{display:block;font-size:28px;color:var(--ac)}
+.kpi span{color:var(--mut);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+h2{margin:8px 0 12px;font-size:22px}
+h3{margin:0 0 8px;font-size:16px}
+ul.l{margin:0;padding-left:18px;color:#cfdfe2}ul.l li{margin:4px 0}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.gal img{width:100%;height:240px;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+@media(max-width:600px){.gal{grid-template-columns:1fr}}
+.bar{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:13px;cursor:pointer}
+.bar .n{width:140px;color:var(--mut)}.bar .t{flex:1;background:var(--p2);border-radius:6px;height:14px;overflow:hidden}.bar .t i{display:block;height:100%;border-radius:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:var(--p);border:1px solid var(--line);color:var(--mut);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.chip.on{background:var(--ac);color:#1b1205;border-color:var(--ac);font-weight:600}
+input[type=search],select{background:var(--p);border:1px solid var(--line);color:var(--tx);padding:8px 12px;border-radius:10px;font-size:14px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.news{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin:14px 0 30px}
+.nc{display:flex;flex-direction:column;gap:8px;transition:.15s}.nc:hover{transform:translateY(-3px);border-color:var(--ac)}
+.nc h4{margin:0;font-size:16px;line-height:1.35}.nc p{margin:0;color:#c3d5d8;font-size:14px}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);align-items:center}
+.cat{padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;color:#08151a}
+.btn{display:inline-block;background:var(--ac);color:#1b1205;text-decoration:none;font-weight:600;padding:7px 14px;border-radius:10px;font-size:13px;border:0;cursor:pointer;margin-top:auto;align-self:flex-start}
+.btn.sec{background:var(--p2);color:var(--tx);border:1px solid var(--line)}
+/* map */
+.mapgrid{display:grid;grid-template-columns:1fr 330px;gap:14px;margin:16px 0 30px}
+@media(max-width:960px){.mapgrid{grid-template-columns:1fr}}
+#map{position:relative;height:68vh;min-height:480px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0c1c22;touch-action:none;cursor:grab;user-select:none}
+#map.drag{cursor:grabbing}
+#tiles,#vec,#mk{position:absolute;inset:0}
+#tiles img{position:absolute;width:256px;height:256px;max-width:none;pointer-events:none}
+#vec{width:100%;height:100%;pointer-events:none}#vec path{pointer-events:visiblePainted;cursor:pointer}
+.mk{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
+.mk .lb{position:absolute;left:32px;top:3px;font-size:11px;white-space:nowrap;background:rgba(10,20,24,.85);padding:1px 6px;border-radius:5px;color:#fff;pointer-events:none}
+.ctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.ctl button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(10,20,24,.92);color:#fff;font-size:18px;cursor:pointer}
+.attr{position:absolute;left:6px;bottom:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:4px;z-index:5}
+#pop{position:absolute;z-index:8;background:#fff;color:#111;border-radius:10px;padding:10px 12px;max-width:280px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+#pop b{display:block;margin-bottom:3px}#pop small{color:#666}
+#dropov{position:absolute;inset:0;z-index:9;background:rgba(43,179,163,.25);border:3px dashed var(--te);display:none;align-items:center;justify-content:center;font-size:20px;font-weight:700;pointer-events:none}
+#map.over #dropov{display:flex}
+.dz{border:2px dashed var(--te);border-radius:14px;padding:18px;text-align:center;background:rgba(43,179,163,.07);cursor:pointer}
+.dz.over{background:rgba(43,179,163,.25)}.dz b{display:block;font-size:15px}.dz span{font-size:12px;color:var(--mut)}
+.ly{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:10px;margin-top:8px;font-size:13px}
+.ly .dot{width:12px;height:12px;border-radius:50%;flex:none}.ly .i{flex:1;min-width:0}.ly .i div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ly small{color:var(--mut)}
+.ly button{background:var(--p2);border:1px solid var(--line);color:var(--tx);border-radius:8px;cursor:pointer;padding:3px 8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1b2e38;border:1px solid var(--ac);padding:10px 16px;border-radius:10px;z-index:99;display:none;font-size:14px}
+/* timeline */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+@media(max-width:700px){.phases{grid-template-columns:1fr}}
+.ph{cursor:pointer;border-top:4px solid var(--c);transition:.15s}.ph.on{background:var(--p2)}.ph small{color:var(--mut)}
+.tl{position:relative;margin:18px 0 30px;padding-left:30px}
+.tl:before{content:"";position:absolute;left:10px;top:0;bottom:0;width:3px;background:var(--line)}
+.ev{position:relative;margin-bottom:14px;cursor:pointer}
+.ev:before{content:"";position:absolute;left:-27px;top:18px;width:15px;height:15px;border-radius:50%;background:var(--c);border:3px solid var(--bg)}
+.ev .d{font-size:12px;color:var(--c);font-weight:700}.ev h4{margin:2px 0}.ev .x{display:none;color:#c8dadd;font-size:14px;margin-top:6px}.ev.open .x{display:block}
+.ev.now:before{box-shadow:0 0 0 5px rgba(240,164,58,.35)}
+.today{border:1px dashed var(--ac);border-radius:10px;padding:6px 12px;margin:0 0 14px;color:var(--ac);font-size:13px}
+/* acc */
+.ac{margin-bottom:10px;overflow:hidden;padding:0}
+.ac>button{width:100%;text-align:left;background:transparent;border:0;color:var(--tx);padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between}
+.ac .b{display:none;padding:0 16px 14px}.ac.open .b{display:block}.ac.open>button{color:var(--ac)}
+.ac .b li{margin:6px 0}
+.note{font-size:12px;color:var(--mut);border-left:3px solid var(--ac);padding:6px 12px;margin:10px 0}
+footer{border-top:1px solid var(--line);padding:20px 0 40px;color:var(--mut);font-size:12px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap nav">
+<span class="brand">🪨 Pedral do Lourenção</span>
+<button class="on" data-tab="geral">🏠 Visão geral</button>
+<button data-tab="mapa">🗺️ Mapa &amp; KML/KMZ</button>
+<button data-tab="noticias">📰 Notícias</button>
+<button data-tab="linha">⏳ Linha do tempo</button>
+<button data-tab="cond">🌿 Condicionantes</button>
+</div></header>
+
+<main class="wrap">
+<!-- VISÃO GERAL -->
+<section class="tab" id="tab-geral">
+<div class="hero"><img src="https://d31zra5bs5df64.cloudfront.net/prod/3Colaw9QY0fFr2ZTfoACXtUh8Ap/chat/3MbfgjKD77Ad3l6wgiO1thfRpQw/3Mbh3XjCQgK1cqkDCXPrg0sXSLp.jpeg?Expires=1795628575&Key-Pair-Id=K2FT0I8VPJSP5H&Signature=j5jxGyHZiGjlOaIav3oUpw5Ov0EXfDKYIIXLnOvNKfxkZQ7a0yft8zTUt8CK5K4trTZo~y1mXXIyYqG3iq6yhS1GmpEmi8vnahaUFamWLGm~r6AsCv4KZxoDh89vOvxl5HI0MObGAC50IbvehkhHJzEJ4qvglR5D22wzP0fcteVJFqFI8vOPJYIZkoU4Ar~A-tv5-4hjrRMGzq61AKUl43vjyXRoAIM6xGRb-ydjivzTpLvufqLFVi7iEbWrOafVBGg3NxhG5fLTBZGlfeBo3fUJn2Ka9KMggtm00kYhPiKt4wTRX-78F7LeiZrqckQiL2rDfuvzSY~wyRM4~QsrFg__" data-f="pedral-do-lourenco.jpeg" onerror="fb(this)" alt="Vista aérea do Pedral do Lourenço no Rio Tocantins">
+<div class="in"><span class="tag">Rio Tocantins · Sudeste do Pará</span><h1>Pedral do Lourenção</h1>
+<p>Derrocamento por explosivos em 35 km do Rio Tocantins para a Hidrovia Araguaia-Tocantins: logística nacional, ambiente e direitos das comunidades em disputa.</p></div></div>
+<div class="kpis">
+<div class="card kpi"><b>📏 35 km</b><span>Trecho: Vila Santa Terezinha do Tauiry (Itupiranga) → Ilha do Bogéa (Nova Ipixuna)</span></div>
+<div class="card kpi"><b>💰 ~R$ 1 bi</b><span>Investimento no PAC · DNIT</span></div>
+<div class="card kpi"><b>🏘️ 23</b><span>comunidades ribeirinhas na região</span></div>
+<div class="card kpi"><b>🪨 987 mil m³</b><span>de rocha previstos para remoção</span></div>
+<div class="card kpi"><b>💥 2027</b><span>previsão das primeiras detonações</span></div>
+<div class="card kpi"><b>📜 5 anos</b><span>validade da Licença de Instalação</span></div>
+</div>
+<div class="gal"><img src="https://d31zra5bs5df64.cloudfront.net/prod/3Colaw9QY0fFr2ZTfoACXtUh8Ap/chat/3MbfgjKD77Ad3l6wgiO1thfRpQw/3Mbh3NfORjzwh7uwkU4ELbZUTDG.jpeg?Expires=1795628574&Key-Pair-Id=K2FT0I8VPJSP5H&Signature=rTAPr7flp1jXFUKySEZ4N6VyKc2TAMtAFYDPCkzaRbrB5fSx0YlPkyPNuCmrA9LOvu3puPHc7NQyvuHtrFByQQ~N-mI4lUOhXgtYp6mC4Fpy8sLohZQphqu6y20JZd7Ola~iLoVjJGoHWe8-c7GndN7tr2scsg863Rr9iEeu9JVdooECE4f1qO6y2F4HJkv8XdgFtNFsq6xmvCyrfI~TgAzp9wvt0a5OGGy6Saz3lV40dg-Z7rCvzh4b8AgoPYXt1NrcZtiZMhugba1ql~RBE9C5etdFHL1fMyxqJ2EId5Yu7tjWTQkF2qcXhWk853ZscF4PhbawzLRly0IXFBypDA__" data-f="images.jpeg" onerror="fb(this)" alt="Afloramentos rochosos do pedral vistos do alto"><img src="https://d31zra5bs5df64.cloudfront.net/prod/3Colaw9QY0fFr2ZTfoACXtUh8Ap/chat/3MbfgjKD77Ad3l6wgiO1thfRpQw/3Mbh3XjCQgK1cqkDCXPrg0sXSLp.jpeg?Expires=1795628575&Key-Pair-Id=K2FT0I8VPJSP5H&Signature=j5jxGyHZiGjlOaIav3oUpw5Ov0EXfDKYIIXLnOvNKfxkZQ7a0yft8zTUt8CK5K4trTZo~y1mXXIyYqG3iq6yhS1GmpEmi8vnahaUFamWLGm~r6AsCv4KZxoDh89vOvxl5HI0MObGAC50IbvehkhHJzEJ4qvglR5D22wzP0fcteVJFqFI8vOPJYIZkoU4Ar~A-tv5-4hjrRMGzq61AKUl43vjyXRoAIM6xGRb-ydjivzTpLvufqLFVi7iEbWrOafVBGg3NxhG5fLTBZGlfeBo3fUJn2Ka9KMggtm00kYhPiKt4wTRX-78F7LeiZrqckQiL2rDfuvzSY~wyRM4~QsrFg__" data-f="pedral-do-lourenco.jpeg" onerror="fb(this)" alt="Pedral do Lourenço no Rio Tocantins"></div>
+<div class="grid2">
+<div class="card"><h3>🚢 Argumentos pró-obra</h3><ul class="l">
+<li>Navegabilidade o ano todo na hidrovia (águas baixas limitam barcaças).</li>
+<li>Escoamento de grãos e minérios rumo ao Porto de Vila do Conde.</li>
+<li>Modal de menor emissão de gases de efeito estufa frente ao rodoviário.</li>
+<li>Licença de Instalação do Ibama (mai/2025) e decisão da Justiça Federal (dez/2025).</li></ul></div>
+<div class="card"><h3>🐟 Argumentos contrários</h3><ul class="l">
+<li>Berçário de peixes e pontos de pesca de milhares de famílias.</li>
+<li>Ausência de Consulta Prévia, Livre e Informada (OIT 169), segundo o MPF.</li>
+<li>Riscos de mortandade de peixes e de alterações no fluxo do rio.</li>
+<li>Pedido de tombamento ao Iphan: patrimônio arqueológico e etnográfico.</li></ul></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>📰 Notícias por tema <small style="color:var(--mut)">(clique para filtrar)</small></h3><div id="catbars"></div></div>
+<div class="card"><h3>⏭️ O que acompanhar</h3><ul class="l">
+<li>Decisão do TRF1 sobre os recursos urgentes do MPF.</li>
+<li>Análise do Iphan sobre o pedido de tombamento.</li>
+<li>Cadastro de pescadores e compensações.</li>
+<li>Início das detonações previsto para 2027 (até 3/dia por 3 anos, canal de ~100 m).</li></ul></div>
+</div>
+</section>
+
+<!-- MAPA -->
+<section class="tab" id="tab-mapa" hidden>
+<h2>🗺️ Mapa interativo</h2>
+<div class="mapgrid">
+<div id="map">
+<div id="tiles"></div><svg id="vec"></svg><div id="mk"></div>
+<div class="ctl"><button id="zi" title="Aproximar">+</button><button id="zo" title="Afastar">−</button><button id="bs" title="Alternar satélite/mapa">🛰</button></div>
+<div class="attr" id="attr">© OpenStreetMap</div><div id="pop"></div><div id="dropov">Solte o KML / KMZ aqui</div>
+</div>
+<aside>
+<div class="dz" id="dz"><b>⬆ Arraste seu KML / KMZ aqui</b><span>ou clique para escolher · pode soltar vários arquivos<br>(também funciona soltando sobre o mapa)</span>
+<input type="file" id="fi" accept=".kml,.kmz" multiple hidden></div>
+<h3 style="margin-top:16px">🧭 Mapa base</h3><div class="chips" id="bases"></div>
+<h3 style="margin-top:16px">🗂️ Camadas</h3><div id="layers"></div>
+<h3 style="margin-top:16px">🎯 Ir para</h3>
+<div class="chips" id="goto"></div>
+<h3 style="margin-top:16px">🔖 Legenda</h3>
+<ul class="l" style="list-style:none;padding:0;font-size:13px">
+<li>🏢 Marabá — sede regional do DNIT</li>
+<li>🎣 Itupiranga — início do trecho (Vila Tauiry)</li>
+<li>🏝️ Nova Ipixuna — Ilha do Bogéa, fim do trecho</li>
+<li>⚡ Tucuruí — usina e reservatório a jusante</li>
+<li>🚢 Vila do Conde — porto de destino da carga</li>
+<li>📌 Pontos do seu KML/KMZ</li>
+</ul>
+<div class="note">Marcadores de cidades são precisos. Suba o KML/KMZ oficial para ver a área exata da obra.</div>
+</aside></div>
+</section>
+
+<!-- NOTÍCIAS -->
+<section class="tab" id="tab-noticias" hidden>
+<h2>📰 10 notícias sobre o Pedral</h2>
+<div class="tools"><input type="search" id="q" placeholder="Buscar nas notícias…" style="flex:1;min-width:200px"><select id="ord"><option value="desc">Mais recentes</option><option value="asc">Mais antigas</option></select></div>
+<div class="chips" id="catchips"></div>
+<div class="news" id="news"></div>
+</section>
+
+<!-- LINHA DO TEMPO -->
+<section class="tab" id="tab-linha" hidden>
+<h2>⏳ Processo histórico</h2>
+<div class="phases" id="phases"></div>
+<div class="tl" id="tl"></div>
+</section>
+
+<!-- CONDICIONANTES -->
+<section class="tab" id="tab-cond" hidden>
+<h2>🌿 Condicionantes ambientais do Ibama</h2>
+<p style="color:var(--mut)">Obrigações impostas ao DNIT e ao consórcio executor, organizadas em quatro eixos.</p>
+<div class="tools" style="margin-bottom:12px"><button class="btn sec" id="expall">Expandir tudo</button></div>
+<div id="acc"></div>
+<div class="note">Atenção: o texto-base informa a "LI nº 1446/2024", mas as fontes oficiais consultadas (DNIT/Ibama, MPF, LAWINFRA) citam a <b>Licença de Instalação nº 1.518/2025</b>, emitida em 26/05/2025, e a Licença Prévia nº 676/2022. Confira o número antes de publicar.</div>
+</section>
+</main>
+
+<footer><div class="wrap">Fontes: matérias listadas na aba Notícias (DNIT, Ministério de Portos e Aeroportos, MPF, G1, Folha, O Globo, LAWINFRA). Mapa base: Esri, CARTO e colaboradores do OpenStreetMap. Informações em andamento; situação processual sujeita a mudança.</div></footer>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)}
+
+/* ===== DADOS ===== */
+const CATS={Licenciamento:'#2bb3a3',Governo:'#7aa7ff',Judicial:'#f0a43a',Mobilização:'#e5604d',Patrimônio:'#c58bff',Ciência:'#8bd36b'};
+const CI={Licenciamento:'📜',Governo:'🏛️',Judicial:'⚖️',Mobilização:'✊',Patrimônio:'🏺',Ciência:'🔬'};
+const NEWS=[
+{cat:'Licenciamento',date:'2025-05-26',src:'DNIT',title:'Ibama emite Licença de Instalação ao DNIT para obra de derrocamento do Pedral do Lourenço',sum:'Licença para 35 km entre Santa Terezinha do Tauiri e a Ilha do Bogéa, com validade de 5 anos e condicionantes de fauna, qualidade da água e controle de ruído e vibração das detonações.',url:'https://www.gov.br/dnit/pt-br/assuntos/noticias/ibama-emite-licenca-de-instalacao-ao-dnit-para-obra-de-derrocamento-do-pedral-do-lourenco'},
+{cat:'Governo',date:'2025-05-26',src:'Min. de Portos e Aeroportos',title:'Ibama concede licença para o derrocamento do Pedral do Lourenço',sum:'Governo federal defende a medida como marco para a hidrovia do Tocantins (1.700 km entre Peixe-TO e Belém), em análise desde 2014, com ganhos logísticos e menor emissão de gases.',url:'https://www.gov.br/portos-e-aeroportos/pt-br/assuntos/noticias/2025/05/ibama-concede-licenca-para-o-derrocamento-do-pedral-do-lourenco'},
+{cat:'Judicial',date:'2025-05-26',src:'Folha de S.Paulo',title:'Ibama dá aval a obra em pedral e MPF aponta ilegalidade',sum:'Poucas horas após a licença, o MPF afirmou que ela viola condicionantes do próprio Ibama (estudos do desembarque pesqueiro) e o direito à consulta livre, prévia e informada.',url:'https://www1.folha.uol.com.br/ambiente/2025/05/ibama-da-licenca-a-obra-de-explosao-de-pedral-onde-atuam-milhares-de-pescadores-e-mpf-diz-ser-ilegal.shtml'},
+{cat:'Judicial',date:'2025-12-23',src:'G1 Pará',title:'Justiça autoriza retomada da obra no Pedral do Lourenço e cobra compensação a comunidades',sum:'Juiz federal rejeita pedidos do MPF para anular as licenças, mas reconhece falhas no diálogo com ribeirinhos e pescadores e cobra compensações. Em junho a Justiça havia suspendido o início dos trabalhos.',url:'https://g1.globo.com/pa/para/noticia/2025/12/23/justica-autoriza-retomada-da-obra-no-pedral-do-lourenco-no-pa-e-cobra-compensacao-a-comunidades.ghtml'},
+{cat:'Mobilização',date:'2026-02-24',src:'G1 Pará',title:'Manifestantes ocupam DNIT em Marabá contra explosão do Pedral; MPF quer barrar obra',sum:'Cerca de 300 ribeirinhos ocuparam a sede do DNIT em Marabá. Cobram escuta: "Somos donos do território". O MPF aponta falhas nos estudos e falta de consulta a indígenas e quilombolas.',url:'https://g1.globo.com/pa/para/noticia/2026/02/24/manifestantes-ocupam-dnit-em-maraba-no-pa-contra-explosao-do-pedral-do-lourencao-mpf-quer-barrar-obra-na-justica.ghtml'},
+{cat:'Mobilização',date:'2026-03-12',src:'G1 Pará',title:'Pescadores bloqueiam a Transamazônica em protesto contra explosão do Pedral',sum:'Ato no km 35 da BR-230, entre Marabá e Itupiranga, com o MAB. O plano prevê até três detonações diárias por três anos para abrir canal de 100 m de largura.',url:'https://g1.globo.com/pa/para/noticia/2026/03/12/pescadores-bloqueiam-rod-transamazonica-em-protesto-contra-explosao-do-pedral-do-lourenco-no-para.ghtml'},
+{cat:'Patrimônio',date:'2026-08-28',src:'O Globo',title:'Iphan recebe pedido para tombar pedral que governo pretende explodir no rio Tocantins',sum:'A Acrevita pediu o tombamento como patrimônio histórico, arqueológico, paisagístico e etnográfico, com análise urgente, seis dias após um "tombamento popular" com cerca de 200 pessoas.',url:'https://oglobo.globo.com/blogs/lauro-jardim/post/2026/08/iphan-recebe-pedido-para-tombar-pedral-que-governo-pretende-explodir-no-rio-tocantins.ghtml'},
+{cat:'Ciência',date:'2026-09-06',src:'G1 Pará',title:'Explosões para abrir hidrovia ameaçam comunidades ribeirinhas no PA; cientistas apontam riscos',sum:'Pesquisadores alertam para riscos de enchentes e danos à pesca. A obra, de quase R$ 1 bi no PAC, tem explosivos previstos a partir de 2027 em 35 km habitados por 23 comunidades.',url:'https://g1.globo.com/pa/para/noticia/2026/09/06/comunidades-ribeirinhas-no-pa-temem-explosoes-para-abrir-hidrovia-no-pedral-do-lourencao-cientistas-apontam-riscos.ghtml'},
+{cat:'Judicial',date:'2026-09-25',src:'MPF',title:'MPF entra com recursos no TRF1 para barrar obras e exigir consulta a comunidades',sum:'Dois recursos pedem suspensão das licenças e impedir uso de explosivos até que impactos sejam medidos. Um deles pede estudo de impacto único para toda a bacia (+3 mil km, 5 estados).',url:'https://www.mpf.mp.br/o-mpf/unidades/pr-pa/noticias/mpf-entra-com-recursos-no-trf1-para-barrar-obras-e-exigir-consulta-a-comunidades-no-pedral-do-lourencao-pa'},
+{cat:'Licenciamento',date:'2026-09-29',src:'LAWINFRA',title:'MPF recorre ao TRF1 contra licenças para derrocamento do Pedral do Lourenção',sum:'Pedidos urgentes ainda aguardavam decisão do tribunal. Os recursos questionam a LP 676/2022 e a LI 1.518/2025; a obra prevê remover cerca de 987 mil m³ de rocha em 35 km.',url:'https://www.lawinfra.com.br/noticias/mpf-recursos-pedral-lourencao-trf1-2026'}
+];
+const PH={1:{n:'📜 Fase 1 · Inclusão e licenciamento',s:'2014 – mai/2025',c:'#2bb3a3'},2:{n:'✊ Fase 2 · Oposição judicial e mobilização',s:'jun/2025 – 2026',c:'#f0a43a'},3:{n:'💥 Fase 3 · Execução operacional',s:'2027 (previsão)',c:'#e5604d'}};
+const EV=[
+{ph:1,i:'🕰️',d:'2014',t:'Licenciamento em análise',x:'O pedido de licença ambiental para derrocar o Pedral tramita no Ibama há mais de uma década, e a disputa chega a quase 12 anos.'},
+{ph:1,i:'📜',d:'Out/2022',t:'Licença Prévia nº 676/2022',x:'Emitida pelo Ibama, define diretrizes para a fase de instalação e exige o Diagnóstico Socioambiental Participativo (DSAP) com ribeirinhos e pescadores.'},
+{ph:1,i:'💰',d:'Anúncio PAC',t:'Obra entra no PAC (~R$ 1 bilhão)',x:'O derrocamento do Pedral é incluído no Programa de Aceleração do Crescimento, sob responsabilidade do DNIT.'},
+{ph:1,i:'✅',d:'26/05/2025',t:'Ibama concede a Licença de Instalação',x:'LI nº 1.518/2025, válida por 5 anos, para 35 km entre Santa Terezinha do Tauiri e a Ilha do Bogéa. Autoriza canteiros, área industrial e paiol de explosivos. O MPF a considera ilegal no mesmo dia.'},
+{ph:2,i:'⏸️',d:'Jun/2025',t:'Justiça suspende o início dos trabalhos',x:'Decisão judicial paralisa temporariamente o início das obras.'},
+{ph:2,i:'⚖️',d:'19/12/2025',t:'Justiça Federal autoriza a continuidade',x:'Ação civil pública do MPF é julgada improcedente quanto à anulação das licenças, mas a decisão reconhece falhas no diálogo com as comunidades e cobra compensação.'},
+{ph:2,i:'🏢',d:'23–24/02/2026',t:'Recurso do MPF e ocupação do DNIT em Marabá',x:'O MPF recorre apontando ausência de CPLI. Cerca de 300 ribeirinhos ocupam a sede do DNIT.'},
+{ph:2,i:'🚧',d:'12/03/2026',t:'Bloqueio da Transamazônica (BR-230)',x:'Ato do MAB e pescadores no km 35, entre Marabá e Itupiranga, dentro da Jornada Nacional de Lutas.'},
+{ph:2,i:'🚣',d:'20/08/2026',t:'"Tombamento popular" na Vila Tauiry',x:'Cerca de 200 pessoas, entre pescadores, ribeirinhos, agricultores e pesquisadores, fazem barqueata e ato simbólico.'},
+{ph:2,i:'🏺',d:'Fim de ago/2026',t:'Pedido de tombamento protocolado no Iphan',x:'A Acrevita pede o reconhecimento como patrimônio histórico, arqueológico, paisagístico e etnográfico, com rito de urgência. O Iphan ainda decide se abre o processo.'},
+{ph:2,i:'🏛️',d:'22–25/09/2026',t:'MPF recorre ao TRF1',x:'Dois recursos pedem suspender LP e LI, canteiros, depósitos de explosivos e detonações. Até 29/09 não havia decisão sobre os pedidos urgentes.',now:1},
+{ph:3,i:'💥',d:'2027',t:'Primeiras detonações previstas',x:'Segundo o DNIT, a fragmentação com explosivos começa em 2027 (até 3 detonações/dia por 3 anos, canal de ~100 m), se não houver decisão judicial em contrário.'}
+];
+const COND=[
+{t:'🐟 1. Manejo da fauna aquática e proteção da ictiofauna',i:['<b>Afugentamento e resgate</b> de peixes, quelônios e mamíferos aquáticos da zona de impacto antes de cada detonação.','<b>Biomonitoramento acústico:</b> monitorar pressão sonora e ondas de choque para evitar ruptura de bexiga natatória e mortandade em massa.','<b>Janelas restritivas (defeso):</b> proibição de detonações e intervenções ruidosas na piracema.']},
+{t:'💧 2. Controle físico-químico e monitoramento da água',i:['<b>Pluma de turbidez:</b> acompanhamento contínuo dos sedimentos finos, protegendo o abastecimento a montante e a jusante.','<b>Resíduos e combustíveis:</b> protocolo contra óleo, graxa e explosivos não detonados nas embarcações e na plataforma.']},
+{t:'🤝 3. Compensação socioeconômica e diálogo comunitário',i:['<b>Cadastro e reparação de pescadores</b> artesanais e ribeirinhos nas áreas de influência direta e indireta.','<b>Comunicação social:</b> alertas prévios sobre rotas, horários de explosão e interdição do trecho.','<b>Infraestrutura comunitária:</b> trapiches, saneamento e alternativas produtivas em Marabá, Itupiranga e região.']},
+{t:'🏺 4. Patrimônio arqueológico e espeleológico',i:['<b>Cavidades subaquáticas:</b> levantamento e preservação de feições espeleológicas antes dos explosivos.','<b>Resgate arqueológico:</b> acompanhamento de arqueólogos para sítios e artefatos no leito e nas margens.']}
+];
+
+/* ===== ABAS ===== */
+$$('[data-tab]').forEach(b=>b.onclick=()=>{$$('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));$$('.tab').forEach(t=>t.hidden=t.id!=='tab-'+b.dataset.tab);if(b.dataset.tab==='mapa')requestAnimationFrame(render);scrollTo(0,0)});
+const goTab=n=>$(`[data-tab=${n}]`).click();
+
+/* ===== NOTÍCIAS ===== */
+let fc='all';
+const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+function drawCats(){
+ $('#catchips').innerHTML=['all',...Object.keys(CATS)].map(c=>`<span class="chip ${fc===c?'on':''}" data-c="${c}">${c==='all'?'🗂️ Todas':CI[c]+' '+c}</span>`).join('');
+ $$('#catchips .chip').forEach(e=>e.onclick=()=>{fc=e.dataset.c;drawCats();drawNews()});
+}
+function drawNews(){
+ const q=$('#q').value.toLowerCase(),o=$('#ord').value;
+ let l=NEWS.filter(n=>(fc==='all'||n.cat===fc)&&(n.title+n.sum+n.src).toLowerCase().includes(q));
+ l.sort((a,b)=>o==='desc'?b.date.localeCompare(a.date):a.date.localeCompare(b.date));
+ $('#news').innerHTML=l.map(n=>`<article class="card nc"><div class="meta"><span class="cat" style="background:${CATS[n.cat]}">${CI[n.cat]} ${n.cat}</span><span>${fmt(n.date)}</span></div><h4>${esc(n.title)}</h4><p>${esc(n.sum)}</p><div class="meta"><span>📰 ${esc(n.src)}</span></div><a class="btn" href="${n.url}" target="_blank" rel="noopener noreferrer">Ler matéria completa ↗</a></article>`).join('')||'<p style="color:var(--mut)">Nenhuma notícia encontrada.</p>';
+}
+$('#q').oninput=drawNews;$('#ord').onchange=drawNews;
+const mx=Math.max(...Object.keys(CATS).map(c=>NEWS.filter(n=>n.cat===c).length));
+$('#catbars').innerHTML=Object.keys(CATS).map(c=>{const k=NEWS.filter(n=>n.cat===c).length;return `<div class="bar" data-c="${c}"><span class="n">${CI[c]} ${c}</span><span class="t"><i style="width:${k/mx*100}%;background:${CATS[c]}"></i></span><b>${k}</b></div>`}).join('');
+$$('#catbars .bar').forEach(e=>e.onclick=()=>{fc=e.dataset.c;drawCats();drawNews();goTab('noticias')});
+drawCats();drawNews();
+
+/* ===== LINHA DO TEMPO ===== */
+let fp=0;
+function drawTL(){
+ $('#phases').innerHTML=Object.entries(PH).map(([k,p])=>`<div class="card ph ${fp==k?'on':''}" style="--c:${p.c}" data-p="${k}"><b>${p.n}</b><br><small>${p.s}</small></div>`).join('');
+ $$('.ph').forEach(e=>e.onclick=()=>{fp=fp==e.dataset.p?0:+e.dataset.p;drawTL()});
+ let h='';EV.filter(e=>!fp||e.ph===fp).forEach((e,i,a)=>{
+  h+=`<div class="ev card ${e.now?'now':''}" style="--c:${PH[e.ph].c}"><div class="d">${e.d}</div><h4>${e.i||''} ${e.t}</h4><div class="x">${e.x}</div></div>`;
+  if(e.now&&!fp)h+=`<div class="today">📍 Hoje (nov/2026): aguardando decisão do TRF1 e análise do Iphan</div>`;
+ });
+ $('#tl').innerHTML=h;$$('.ev').forEach(e=>e.onclick=()=>e.classList.toggle('open'));
+ $$('.ev')[0]?.classList.add('open');
+}
+drawTL();
+
+/* ===== CONDICIONANTES ===== */
+$('#acc').innerHTML=COND.map((c,i)=>`<div class="card ac ${i==0?'open':''}"><button>${c.t}<span>▾</span></button><div class="b"><ul class="l">${c.i.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>`).join('');
+$$('.ac>button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'));
+$('#expall').onclick=()=>{const all=$$('.ac').every(a=>a.classList.contains('open'));$$('.ac').forEach(a=>a.classList.toggle('open',!all));$('#expall').textContent=all?'Expandir tudo':'Recolher tudo'};
+
+/* ===== MAPA (slippy map próprio, sem bibliotecas) ===== */
+const R=256,mapEl=$('#map'),tilesEl=$('#tiles'),vec=$('#vec'),mk=$('#mk'),pop=$('#pop');
+const proj=(lat,lng,z)=>{const s=R*2**z,sn=Math.sin(lat*Math.PI/180);return{x:(lng+180)/360*s,y:(0.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*s}};
+const unproj=(x,y,z)=>{const s=R*2**z,n=Math.PI-2*Math.PI*y/s;return{lat:180/Math.PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n))),lng:x/s*360-180}};
+const view={lat:-5.1,lng:-49.2,z:10};let base='sat';const tcache=new Map();
+const BASES={
+ sat:{n:'Satélite (Esri)',a:'Imagens © Esri, Maxar, Earthstar Geographics',u:(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`},
+ rua:{n:'Ruas (Esri)',a:'© Esri, HERE, Garmin, OpenStreetMap contributors',u:(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}`},
+ topo:{n:'Topográfico (Esri)',a:'© Esri, USGS, NOAA',u:(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}`},
+ claro:{n:'Claro (CARTO)',a:'© CARTO © OpenStreetMap contributors',u:(z,x,y)=>`https://${'abcd'[(x+y)%4]}.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`}
+};
+const terr={};
+function tileErr(){terr[base]=(terr[base]||0)+1;if(terr[base]===6)toast('Este mapa base falhou ao carregar. Tente outro em "Mapa base".')}
+const tileURL=(z,x,y)=>BASES[base].u(z,x,y);
+const COLORS=['#e5604d','#2bb3a3','#f0a43a','#7aa7ff','#c58bff','#8bd36b'];
+const layers=[{id:0,name:'Referências regionais',color:'#f0a43a',visible:true,builtin:true,feats:[
+ {t:'point',ic:'🏢',n:'Marabá',d:'Sede regional do DNIT, ocupada por ~300 manifestantes em 24/02/2026. Transamazônica (km 35) bloqueada em 12/03/2026.',c:[[-5.3686,-49.1179]]},
+ {t:'point',ic:'🎣',n:'Itupiranga',d:'Município onde fica a Vila Santa Terezinha do Tauiry, início do trecho de derrocamento. Local do "tombamento popular" (20/08/2026).',c:[[-5.1286,-49.3236]]},
+ {t:'point',ic:'🏝️',n:'Nova Ipixuna',d:'Município da Ilha do Bogéa, fim do trecho de 35 km.',c:[[-4.9167,-49.0714]]},
+ {t:'point',ic:'⚡',n:'Tucuruí',d:'Cidade a jusante, no reservatório da UHE Tucuruí.',c:[[-3.7661,-49.6722]]},
+ {t:'point',ic:'🚢',n:'Porto de Vila do Conde (Barcarena)',d:'Destino da carga da hidrovia (soja, minério e grãos).',c:[[-1.5333,-48.75]]},
+
+]}];
+let nid=1;
+
+function size(){return{W:mapEl.clientWidth,H:mapEl.clientHeight}}
+function render(){
+ const{W,H}=size();if(!W)return;
+ const c=proj(view.lat,view.lng,view.z),n=2**view.z,need=new Set();
+ const x0=Math.floor((c.x-W/2)/R),x1=Math.floor((c.x+W/2)/R),y0=Math.max(0,Math.floor((c.y-H/2)/R)),y1=Math.min(n-1,Math.floor((c.y+H/2)/R));
+ for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){
+  const wx=((tx%n)+n)%n,k=`${base}/${view.z}/${tx}/${ty}`;need.add(k);
+  let im=tcache.get(k);if(!im){im=new Image();im.onerror=tileErr;im.src=tileURL(view.z,wx,ty);im.draggable=false;tilesEl.appendChild(im);tcache.set(k,im)}
+  im.style.left=(tx*R-(c.x-W/2))+'px';im.style.top=(ty*R-(c.y-H/2))+'px';
+ }
+ for(const[k,im]of tcache)if(!need.has(k)){im.remove();tcache.delete(k)}
+ const sp=(la,lo)=>{const p=proj(la,lo,view.z);return[p.x-c.x+W/2,p.y-c.y+H/2]};
+ let sv='',mh='';
+ layers.forEach(L=>{if(!L.visible)return;L.feats.forEach((f,fi)=>{
+  const da=`data-l="${L.id}" data-f="${fi}"`;
+  if(f.t==='point'){const[x,y]=sp(...f.c[0]);if(x<-40||y<-40||x>W+40||y>H+40)return;
+   mh+=`<div class="mk" ${da} style="left:${x}px;top:${y}px;background:${L.color}">${f.ic||'📌'}<span class="lb">${esc(f.n)}</span></div>`}
+  else if(f.t==='line'){sv+=`<path ${da} d="${f.c.map((p,i)=>(i?'L':'M')+sp(...p).map(v=>v.toFixed(1)).join(' ')).join('')}" fill="none" stroke="${L.color}" stroke-width="${f.dash?5:3}" stroke-linecap="round" ${f.dash?'stroke-dasharray="10 8"':''} opacity=".95"/>`}
+  else{sv+=`<path ${da} fill-rule="evenodd" d="${f.rings.map(r=>r.map((p,i)=>(i?'L':'M')+sp(...p).map(v=>v.toFixed(1)).join(' ')).join('')+'Z').join('')}" fill="${L.color}" fill-opacity=".3" stroke="${L.color}" stroke-width="2.5"/>`}
+ })});
+ vec.innerHTML=sv;mk.innerHTML=mh;$('#attr').textContent=BASES[base].a;
+}
+function setZoom(z,ax,ay){
+ z=Math.max(3,Math.min(18,z));if(z===view.z)return;const{W,H}=size();ax??=W/2;ay??=H/2;
+ const c=proj(view.lat,view.lng,view.z),g=unproj(c.x+ax-W/2,c.y+ay-H/2,view.z);
+ view.z=z;const p=proj(g.lat,g.lng,z),nc=unproj(p.x-(ax-W/2),p.y-(ay-H/2),z);view.lat=nc.lat;view.lng=nc.lng;render();
+}
+function fit(pts){
+ const{W,H}=size();const la=pts.map(p=>p[0]),lo=pts.map(p=>p[1]);
+ const a=Math.min(...la),b=Math.max(...la),c=Math.min(...lo),d=Math.max(...lo);let z=17;
+ for(;z>3;z--){const p1=proj(b,c,z),p2=proj(a,d,z);if(p2.x-p1.x<W-100&&p2.y-p1.y<H-100)break}
+ const m=unproj((proj(b,c,z).x+proj(a,d,z).x)/2,(proj(b,c,z).y+proj(a,d,z).y)/2,z);view.lat=m.lat;view.lng=m.lng;view.z=z;render();
+}
+new ResizeObserver(render).observe(mapEl);
+// pan
+let dr=null;
+mapEl.addEventListener('pointerdown',e=>{if(e.target.closest('.ctl'))return;dr={x:e.clientX,y:e.clientY,m:0,t:e.target};mapEl.setPointerCapture(e.pointerId);mapEl.classList.add('drag')});
+mapEl.addEventListener('pointermove',e=>{if(!dr)return;const dx=e.clientX-dr.x,dy=e.clientY-dr.y;dr.m+=Math.abs(dx)+Math.abs(dy);dr.x=e.clientX;dr.y=e.clientY;
+ const c=proj(view.lat,view.lng,view.z),n=unproj(c.x-dx,c.y-dy,view.z);view.lat=Math.max(-85,Math.min(85,n.lat));view.lng=n.lng;pop.style.display='none';render()});
+mapEl.addEventListener('pointerup',e=>{mapEl.classList.remove('drag');if(dr&&dr.m<6){const t=dr.t.closest?.('[data-f]');if(t)showPop(t,e);else pop.style.display='none'}dr=null});
+let wl=0;mapEl.addEventListener('wheel',e=>{e.preventDefault();if(Date.now()-wl<140)return;wl=Date.now();const r=mapEl.getBoundingClientRect();setZoom(view.z+(e.deltaY<0?1:-1),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+mapEl.addEventListener('dblclick',e=>{const r=mapEl.getBoundingClientRect();setZoom(view.z+1,e.clientX-r.left,e.clientY-r.top)});
+$('#zi').onclick=()=>setZoom(view.z+1);$('#zo').onclick=()=>setZoom(view.z-1);
+function drawBase(){
+ $('#bases').innerHTML=Object.entries(BASES).map(([k,b])=>`<span class="chip ${base===k?'on':''}" data-b="${k}">${b.n}</span>`).join('');
+ $$('[data-b]').forEach(e=>e.onclick=()=>{base=e.dataset.b;drawBase();render()});
+}
+$('#bs').onclick=()=>{const ks=Object.keys(BASES);base=ks[(ks.indexOf(base)+1)%ks.length];drawBase();render();toast('Mapa base: '+BASES[base].n)};
+drawBase();
+function plain(h){return new DOMParser().parseFromString(h||'','text/html').body.textContent.trim().slice(0,420)}
+function showPop(t,e){
+ const L=layers.find(l=>l.id==t.dataset.l),f=L.feats[t.dataset.f],r=mapEl.getBoundingClientRect();
+ pop.innerHTML=`<b>${esc(f.n||'Sem nome')}</b>${f.d?`<div>${esc(plain(f.d))}</div>`:''}<small>${esc(L.name)}</small>`;
+ pop.style.display='block';pop.style.left=Math.min(e.clientX-r.left+10,r.width-300)+'px';pop.style.top=Math.max(8,Math.min(e.clientY-r.top+10,r.height-140))+'px';
+}
+// camadas UI
+const allPts=L=>L.feats.flatMap(f=>f.t==='poly'?f.rings.flat():f.c);
+function stats(feats){
+ let a=0,l=0,p=0;const hv=(A,B)=>{const r=6371,d=Math.PI/180,x=Math.sin((B[0]-A[0])*d/2)**2+Math.cos(A[0]*d)*Math.cos(B[0]*d)*Math.sin((B[1]-A[1])*d/2)**2;return 2*r*Math.asin(Math.sqrt(x))};
+ const ar=r=>{const l0=r.reduce((s,q)=>s+q[0],0)/r.length,k=Math.cos(l0*Math.PI/180)*111.32,pts=r.map(q=>[q[1]*k,q[0]*110.57]);let s=0;for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;s+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1]}return Math.abs(s/2)};
+ feats.forEach(f=>{if(f.t==='point')p++;else if(f.t==='line')for(let i=1;i<f.c.length;i++)l+=hv(f.c[i-1],f.c[i]);else f.rings.forEach((r,i)=>a+=(i?-1:1)*ar(r))});
+ return`${feats.length} feições`+(a?` · ${a.toLocaleString('pt-BR',{maximumFractionDigits:2})} km²`:'')+(l?` · ${l.toLocaleString('pt-BR',{maximumFractionDigits:1})} km`:'')+(p?` · ${p} pontos`:'');
+}
+function drawLayers(){
+ $('#layers').innerHTML=layers.map(L=>`<div class="ly"><input type="checkbox" data-v="${L.id}" ${L.visible?'checked':''}><span class="dot" style="background:${L.color}"></span><div class="i"><div>${esc(L.name)}</div><small>${stats(L.feats)}</small></div><button data-z="${L.id}" title="Ir para">⌖</button>${L.builtin?'':`<button data-x="${L.id}" title="Remover">✕</button>`}</div>`).join('');
+ $$('[data-v]').forEach(e=>e.onchange=()=>{layers.find(l=>l.id==e.dataset.v).visible=e.checked;render()});
+ $$('[data-z]').forEach(e=>e.onclick=()=>fit(allPts(layers.find(l=>l.id==e.dataset.z))));
+ $$('[data-x]').forEach(e=>e.onclick=()=>{layers.splice(layers.findIndex(l=>l.id==e.dataset.x),1);drawLayers();render()});
+}
+const GO=[['Trecho do Pedral',[[-5.3686,-49.1179],[-5.1286,-49.3236],[-4.9167,-49.0714]]],['Região (Tucuruí)',[[-5.3686,-49.1179],[-3.7661,-49.6722]]],['Hidrovia até Vila do Conde',[[-5.3686,-49.1179],[-1.5333,-48.75]]]];
+$('#goto').innerHTML=GO.map((g,i)=>`<span class="chip" data-g="${i}">${g[0]}</span>`).join('');
+$$('[data-g]').forEach(e=>e.onclick=()=>fit(GO[e.dataset.g][1]));
+
+// KML / KMZ
+function parseKML(text){
+ const doc=new DOMParser().parseFromString(text,'text/xml');if(doc.querySelector('parsererror'))throw new Error('KML inválido');
+ const co=s=>(s||'').trim().split(/\s+/).map(t=>t.split(',').map(Number)).filter(a=>a.length>=2&&!isNaN(a[0])&&!isNaN(a[1])).map(a=>[a[1],a[0]]);
+ const ch=(el,n)=>[...el.children].find(c=>c.localName===n);
+ const out=[];
+ [...doc.getElementsByTagName('Placemark')].forEach(pm=>{
+  const n=ch(pm,'name')?.textContent||'',d=ch(pm,'description')?.textContent||'';
+  [...pm.getElementsByTagName('Point')].forEach(p=>{const c=co(p.getElementsByTagName('coordinates')[0]?.textContent);if(c.length)out.push({t:'point',n,d,c:[c[0]]})});
+  [...pm.getElementsByTagName('LineString')].forEach(p=>{const c=co(p.getElementsByTagName('coordinates')[0]?.textContent);if(c.length>1)out.push({t:'line',n,d,c})});
+  [...pm.getElementsByTagName('Polygon')].forEach(p=>{
+   const rings=[];const ob=p.getElementsByTagName('outerBoundaryIs')[0];
+   if(ob){const c=co(ob.getElementsByTagName('coordinates')[0]?.textContent);if(c.length>2)rings.push(c)}
+   [...p.getElementsByTagName('innerBoundaryIs')].forEach(ib=>{const c=co(ib.getElementsByTagName('coordinates')[0]?.textContent);if(c.length>2)rings.push(c)});
+   if(rings.length)out.push({t:'poly',n,d,rings});
+  });
+ });
+ return out;
+}
+async function unzip(buf){
+ const dv=new DataView(buf),u8=new Uint8Array(buf);let e=-1;
+ for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65600);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+ if(e<0)throw new Error('KMZ inválido');
+ const tot=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const ents=[];
+ for(let i=0;i<tot;i++){
+  if(dv.getUint32(p,true)!==0x02014b50)break;
+  const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+  ents.push({m,cs,lo,name:new TextDecoder().decode(u8.subarray(p+46,p+46+nl))});p+=46+nl+el+cl;
+ }
+ const k=ents.find(x=>/(^|\/)doc\.kml$/i.test(x.name))||ents.find(x=>/\.kml$/i.test(x.name));
+ if(!k)throw new Error('Nenhum .kml dentro do KMZ');
+ const nl=dv.getUint16(k.lo+26,true),el=dv.getUint16(k.lo+28,true),s=k.lo+30+nl+el,data=u8.subarray(s,s+k.cs);
+ if(k.m===0)return new TextDecoder().decode(data);
+ if(k.m!==8)throw new Error('Compressão de KMZ não suportada');
+ const ab=await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+ return new TextDecoder().decode(ab);
+}
+async function loadFile(f){
+ try{
+  const text=/\.kmz$/i.test(f.name)?await unzip(await f.arrayBuffer()):await f.text();
+  addLayer(f.name,parseKML(text));
+ }catch(err){toast('Erro em '+f.name+': '+err.message)}
+}
+function addLayer(name,feats){
+ if(!feats.length){toast('Nenhuma feição (ponto/linha/polígono) encontrada em '+name);return}
+ const L={id:nid++,name,color:COLORS[(nid-2)%COLORS.length],visible:true,feats};layers.push(L);drawLayers();fit(allPts(L));toast('✔ '+name+' carregado: '+feats.length+' feições');
+}
+async function handleFiles(fl){const arr=[...fl].filter(f=>/\.(kml|kmz)$/i.test(f.name));if(!arr.length){toast('Envie arquivos .kml ou .kmz');return}for(const f of arr)await loadFile(f)}
+const dz=$('#dz'),fi=$('#fi');
+dz.onclick=()=>fi.click();fi.onchange=()=>{handleFiles(fi.files);fi.value=''};
+['dragenter','dragover'].forEach(ev=>{
+ window.addEventListener(ev,e=>{e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy'});
+ dz.addEventListener(ev,()=>dz.classList.add('over'));mapEl.addEventListener(ev,()=>mapEl.classList.add('over'));
+});
+['dragleave','drop'].forEach(ev=>{dz.addEventListener(ev,()=>dz.classList.remove('over'));mapEl.addEventListener(ev,()=>mapEl.classList.remove('over'))});
+window.addEventListener('drop',e=>{e.preventDefault()});
+dz.addEventListener('drop',e=>{e.preventDefault();handleFiles(e.dataTransfer.files)});
+mapEl.addEventListener('drop',e=>{e.preventDefault();handleFiles(e.dataTransfer.files)});
+
+// zoom com botões não deve iniciar pan
+$$('.ctl').forEach(e=>e.addEventListener('pointerdown',ev=>ev.stopPropagation()));
+drawLayers();
+goTab('geral');
+setTimeout(()=>fit(GO[0][1]),50);
+</script>
+</body>
+</html>
